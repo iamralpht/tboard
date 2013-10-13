@@ -1,0 +1,60 @@
+<html>
+<head>
+ <title>TBoard test</title>
+ <script src="../letter.js"></script>
+ <link rel="stylesheet" href="../letter.css"></link>
+ <style>
+.respawners {
+    position: absolute;
+    height: 128px;
+    width: 100%;
+    margin: 32px 0;
+    text-align: center;
+    border-bottom: 2px solid black;
+}
+.bottom {
+    position: absolute;
+    border-top: 2px solid black;
+    bottom: 0;
+    width: 100%;
+}
+</style>
+</head>
+<body>
+ <div class="respawners">
+  <div class="respawn" id="l"></div>
+  <div class="respawn" id="b"></div>
+  <div class="respawn" id="a"></div>
+  <div class="respawn" id="u"></div>
+ </div>
+ <div class="left">
+ </div>
+ <div class="right">
+ </div>
+ <div class="bottom">
+  <ol>
+   <li>I kicked the b<div class="home"></div><div class="home"></div><div class="home"></div> into the goal!</li>
+   <li>The sky is California <div class="home"></div><div class="home"></div><div class="home"></div>e.</li>
+  </ol>
+ </div>
+ <script>
+var respawners = document.querySelectorAll('.respawn');
+for (var i = 0; i < respawners.length; i++) {
+    var e = respawners[i];
+    var template = document.createElement('div');
+    template.className = 'letter';
+    template.innerText = e.id;
+    var home = new TBoard.Respawner(e, template);
+    home.update();
+}
+
+var homes = document.querySelectorAll('.home');
+for (var i = 0; i < homes.length; i++) {
+    var e = homes[i];
+    var home = new TBoard.Home(e);
+    home.update();
+}
+document.body.addEventListener('touchstart', function(e) { e.preventDefault(); }, false);
+ </script>
+</body>
+</html>

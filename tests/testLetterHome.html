@@ -1,0 +1,27 @@
+<html>
+<head>
+<script src="../letter.js"></script>
+<link rel="stylesheet" href="../letter.css"></link>
+</head>
+<body>
+This is a test of basic letters and homes. Here are s<div class="home" id="o"></div><div class="home" id="m"></div><div class="home" id="e"></div> homes.
+<div class="home"></div><div class="home"></div>
+<script>
+var homeElements = document.querySelectorAll('.home');
+for (var i = 0; i < homeElements.length; i++) {
+    var e = homeElements[i];
+    if (e.id && e.id != "") {
+        var letterElem = document.createElement('div');
+        letterElem.className = 'letter';
+        letterElem.innerText = e.id;
+
+        var home = new TBoard.Respawner(e, letterElem);
+
+        home.update();
+    } else {
+        var home = new TBoard.Home(e);
+        home.update();
+    }
+}
+</script>
+</body>

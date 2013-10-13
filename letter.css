@@ -1,0 +1,27 @@
+/*
+ * TBoard
+ * Copyright 2013 (C) Ralph Thomas, Palo Alto, CA
+ */
+body {
+    font-size: 28px;
+    font-family: sans-serif;
+    margin: 0;
+}
+.home,.respawn {
+    display: inline-block;
+    width: 64px;
+    height: 64px;
+    border-bottom: 1px solid #e0e0e0;
+    margin: 8px;
+    vertical-align: middle;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.letter {
+    position: absolute;
+    left: 0; top: 0;
+    width: 64px; height: 64px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    line-height: 64px;
+    background-color: white;
+}
