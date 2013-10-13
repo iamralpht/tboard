@@ -11,17 +11,50 @@ body {
     display: inline-block;
     width: 64px;
     height: 64px;
+    margin: 2px;
     border-bottom: 1px solid #e0e0e0;
-    margin: 8px;
     vertical-align: middle;
     background-color: rgba(0, 0, 0, 0.05);
 }
+.respawn { margin: 8px; }
 .letter {
     position: absolute;
     left: 0; top: 0;
     width: 64px; height: 64px;
+    line-height: 54px;
     border: 1px solid #e0e0e0;
     text-align: center;
-    line-height: 64px;
     background-color: white;
 }
+
+/*
+ * Give the body a "board" class to get the standard tboard layout.
+ */
+body.board {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+.board .respawners {
+    padding: 12px 0;
+    text-align: center;
+    border-bottom: 2px solid black;
+}
+.board .center {
+    -webkit-box-flex: 1;
+    position: relative;
+}
+.board .center div {
+    position: absolute;
+    width: 50%; top: 0; bottom: 0;
+}
+.board .center .left {
+    border-right: 2px solid black;
+}
+.board .center .right {
+    right: 0;
+}
+.board .sentences {
+    border-top: 2px solid black;
+    padding: 12px;
+}
+.board .sentences ol { margin: 0; }
