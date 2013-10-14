@@ -105,9 +105,12 @@ Home.prototype.isEmpty = function(letter) { return this._letters.length == 0; }
 function Respawner(domElement, template) {
     this._home = new Home(domElement);
     this._home.isEmpty = function(letter) { if (letter && letter.origin == this) return true; return false; };
-    this._home._onAddLetter = this._onAddLetter.bind(this);
-    this._home._onRemoveLetter = this._onRemoveLetter.bind(this);
-    this.update = this._home.update.bind(this._home);
+
+    // Use self rather than Function.bind to support iOS 5, which lacks Function.bind.
+    var self = this;
+    this._home._onAddLetter = function(letter) { self._onAddLetter(letter); };
+    this._home._onRemoveLetter = function(letter) { self._onRemoveLetter(letter); };
+    this.update = function() { self._home.update(); };
     this._template = template;
 
     this._replenish();
@@ -145,9 +148,11 @@ Respawner.prototype._replenish = function() {
 //
 function Letter(domElement, home) {
     this._element = domElement;
-    this._element.addEventListener('touchstart', this._start.bind(this), false);
-    this._element.addEventListener('touchmove', this._move.bind(this), false);
-    this._element.addEventListener('touchend', this._end.bind(this), false);
+    // Use self rather than bind again.
+    var self = this;
+    this._element.addEventListener('touchstart', function(e) { self._start(e); }, false);
+    this._element.addEventListener('touchmove', function(e) { self._move(e); }, false);
+    this._element.addEventListener('touchend', function(e) { self._end(e); }, false);
     this._tracking = false;
 
     this._homeTransform = id;

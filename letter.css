@@ -29,21 +29,30 @@ body {
 
 /*
  * Give the body a "board" class to get the standard tboard layout.
+ * We would normally use box layout here, but it doesn't work well on iOS 5 or 6,
+ * so just use absolute positioning.
  */
 body.board {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
     word-spacing: 20px;
 }
-.board ul { list-style-type: none; }
+.board ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 12px;
+}
 .board .respawners {
-    padding: 12px 0;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100px;
+    padding: 8px 0;
     text-align: center;
     border-bottom: 2px solid black;
 }
 .board .center {
-    -webkit-box-flex: 1;
-    position: relative;
+    top: 100px;
+    bottom: 164px;
+    width: 100%;
+    position: absolute;
 }
 .board .center>div {
     position: absolute;
@@ -56,6 +65,9 @@ body.board {
     right: 0;
 }
 .board .sentences {
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 0px; width: 100%;
     border-top: 2px solid black;
     padding: 12px 42px;
 }
