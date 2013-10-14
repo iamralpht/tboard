@@ -3,7 +3,7 @@
  * Copyright 2013 (C) Ralph Thomas, Palo Alto, CA
  */
 body {
-    font-size: 28px;
+    font-size: 38px;
     font-family: sans-serif;
     margin: 0;
 }
@@ -33,7 +33,9 @@ body {
 body.board {
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    word-spacing: 20px;
 }
+.board ul { list-style-type: none; }
 .board .respawners {
     padding: 12px 0;
     text-align: center;
@@ -43,18 +45,18 @@ body.board {
     -webkit-box-flex: 1;
     position: relative;
 }
-.board .center div {
+.board .center>div {
     position: absolute;
     width: 50%; top: 0; bottom: 0;
 }
-.board .center .left {
+.board .center>.left {
     border-right: 2px solid black;
 }
-.board .center .right {
+.board .center>.right {
     right: 0;
 }
 .board .sentences {
     border-top: 2px solid black;
-    padding: 12px;
+    padding: 12px 42px;
 }
 .board .sentences ol { margin: 0; }

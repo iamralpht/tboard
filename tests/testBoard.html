@@ -1,5 +1,7 @@
 <html>
 <head>
+ <meta name="apple-mobile-web-app-capable" content="yes" />
+ <meta name="viewport" content="width=device-width, height=device-height, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
  <title>TBoard test</title>
  <script src="../letter.js"></script>
  <link rel="stylesheet" href="../letter.css"></link>
@@ -16,8 +18,20 @@
  </div>
  <div class="center">
   <div class="left">
+   <ul>
+    <li><div class="home"></div><div class="home"></div></li>
+    <li><div class="home"></div><div class="home"></div></li>
+    <li><div class="home"></div><div class="home"></div><div class="home"></div><div class="home"></div></li>
+    <li><div class="home"></div><div class="home"></div><div class="home"></div><div class="home"></div></li>
+    <li><div class="home"></div><div class="home"></div><div class="home"></div><div class="home"></div><div class="home"></div></li>
+    <li><div class="home"></div><div class="home"></div><div class="home"></div><div class="home"></div><div class="home"></div><div class="home"></div></li>
+   </ul>
   </div>
   <div class="right">
+   <ul>
+    <li><div class="home"></div><div class="home"></div><div class="home"></div>r</li>
+    <li><div class="home"></div>e<div class="home"></div>r</li>
+   </ul>
   </div>
  </div>
  <div class="sentences">
@@ -43,7 +57,7 @@ for (var i = 0; i < homes.length; i++) {
     var home = new TBoard.Home(e);
     home.update();
 }
-document.body.addEventListener('touchstart', function(e) { e.preventDefault(); }, false);
+document.body.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); }, false);
  </script>
 </body>
 </html>
