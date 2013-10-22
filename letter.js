@@ -39,9 +39,9 @@ function findNearestHome(x, y, maxDistance) {
     var shortestDistance = Number.MAX_VALUE;
     for (var i = 0; i < homeInstances.length; i++) {
         if (!homeInstances[i].isEmpty()) continue;
-        var center = homeInstances[i].centerPoint();
-        var dx = x - center.x;
-        var dy = y - center.y;
+        var position = homeInstances[i].position();
+        var dx = x - position.x;
+        var dy = y - position.y;
         var distance = dx * dx + dy * dy;
         if (distance < shortestDistance) {
             shortestDistance = distance;
@@ -87,15 +87,12 @@ Home.prototype.update = function() {
     }
     this._transform = id.translate(offset.x, offset.y);
 
-    var cstyle = window.getComputedStyle(this._element);
-    this._size = { w: parseInt(cstyle.width, 10), h: parseInt(cstyle.height, 10) };
-
     for (var i = 0; i < this._letters.length; i++)
         this._letters[i].setHomeTransform(this._transform);
 }
 Home.prototype.transform = function() { return this._transform; }
-Home.prototype.centerPoint = function() {
-    return { x: this._transform.e + this._size.w / 2, y: this._transform.f + this._size.h / 2 };
+Home.prototype.position = function() {
+    return { x: this._transform.e, y: this._transform.f };
 }
 Home.prototype.isEmpty = function(letter) { return this._letters.length == 0; }
 
