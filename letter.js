@@ -153,7 +153,6 @@ function Letter(domElement, home) {
     this._element.addEventListener('touchstart', function(e) { self._start(e); }, false);
     this._element.addEventListener('touchmove', function(e) { self._move(e); }, false);
     this._element.addEventListener('touchend', function(e) { self._end(e); }, false);
-    this._tracking = false;
 
     this._homeTransform = id;
     this._home = home;
@@ -187,7 +186,7 @@ Letter.prototype._start = function(e) {
     // XXX: Really we should just track with arbitrarily many touch points and average
     //      the movement to guard against bad touchscreens. Accidental edge touches are
     //      less of an issue because each letter is pretty small.
-    if (this._tracking) return;
+    if (this.hasOwnProperty('_tracking')) return;
 
     this._tracking = e.changedTouches[0].identifier;
     this._startTransform = new WebKitCSSMatrix(window.getComputedStyle(this._element).webkitTransform);
@@ -204,7 +203,7 @@ Letter.prototype._move = function(e) {
     e.stopPropagation();
     e.preventDefault();
 
-    if (!this._tracking) return;
+    if (!this.hasOwnProperty('_tracking')) return;
     for (var i = 0; i < e.changedTouches.length; i++) {
         var t = e.changedTouches[i];
         if (t.identifier == this._tracking) {
@@ -219,7 +218,7 @@ Letter.prototype._end = function(e) {
     e.stopPropagation();
     e.preventDefault();
 
-    if (!this._tracking) return;
+    if (!this.hasOwnProperty('_tracking')) return;
 
     for (var i = 0; i < e.changedTouches.length; i++) {
         var t = e.changedTouches[i];
