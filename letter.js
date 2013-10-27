@@ -70,7 +70,9 @@ Home.prototype.addLetter = function(letter) {
     if (idx == -1) this._letters.push(letter);
     if (!this._transform) this.update();
     letter.setHomeTransform(this._transform);
-    if (this._afterAddLetter) this._afterAddLetter(letter);
+    try {
+        if (this._afterAddLetter) this._afterAddLetter(letter);
+    } catch(e) {}
 }
 Home.prototype.removeLetter = function(letter) {
     if (this._onRemoveLetter) this._onRemoveLetter(letter);
@@ -223,7 +225,6 @@ Letter.prototype._end = function(e) {
     for (var i = 0; i < e.changedTouches.length; i++) {
         var t = e.changedTouches[i];
         if (t.identifier == this._tracking) {
-            delete this._tracking;
 
             var point = { x: t.pageX - this._startPoint.x, y: t.pageY - this._startPoint.y };
             var tx = this._startTransform.translate(point.x, point.y);
@@ -243,12 +244,13 @@ Letter.prototype._end = function(e) {
 
             this._element.style.webkitTransform = this._homeTransform;
             this._element.style.webkitTransition = '-webkit-transform 500ms';
+            delete this._tracking;
         }
     }
 }
 Letter.prototype.setHomeTransform = function(t) {
     this._homeTransform = t;
-    if (!this._tracking) {
+    if (!this.hasOwnProperty('_tracking')) {
         this._element.style.webkitTransform = this._homeTransform;
         this._element.style.webkitTransition = 'none';
     }

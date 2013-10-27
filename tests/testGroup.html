@@ -65,7 +65,7 @@ for (var i = 0; i < groups.length; i++) {
     else if (g.classList.contains('at')) completions =[['c'], ['b'], ['r'], ['m'], ['s']];
     else if (g.classList.contains('batman')) completions = [['b','m']];
     var group = new TBoard.Group(completions, homes);
-    group._onMatch = function() { alert('yes'); };
+    group._onMatch = function() { console.log('yes'); };
 }
 
 /*
