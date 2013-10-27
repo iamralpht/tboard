@@ -70,6 +70,7 @@ Home.prototype.addLetter = function(letter) {
     if (idx == -1) this._letters.push(letter);
     if (!this._transform) this.update();
     letter.setHomeTransform(this._transform);
+    if (this._afterAddLetter) this._afterAddLetter(letter);
 }
 Home.prototype.removeLetter = function(letter) {
     if (this._onRemoveLetter) this._onRemoveLetter(letter);
@@ -95,6 +96,7 @@ Home.prototype.position = function() {
     return { x: this._transform.e, y: this._transform.f };
 }
 Home.prototype.isEmpty = function(letter) { return this._letters.length == 0; }
+Home.prototype.text = function() { if (this._letters.length == 0) return null; return this._letters[0].text(); }
 
 //
 // Respawner, adapts a home to create new letters.
@@ -176,6 +178,7 @@ Letter.prototype.disappearAndRemove = function() {
         document.body.removeChild(self._element);
         }, true);
 }
+Letter.prototype.text = function() { return this._element.innerText; }
 var lastZIndex = 1;
 Letter.prototype._start = function(e) {
     e.stopPropagation();
@@ -237,6 +240,7 @@ Letter.prototype._end = function(e) {
                 this._home = newHome;
                 this._home.addLetter(this);
             }
+
             this._element.style.webkitTransform = this._homeTransform;
             this._element.style.webkitTransition = '-webkit-transform 500ms';
         }
@@ -250,8 +254,43 @@ Letter.prototype.setHomeTransform = function(t) {
     }
 }
 
+// A Group is a set of homes with a set of permitted values (called completions). When
+// a completion is filled out, the homes can be animated away and replaced with the
+// completion to form the word. Eventually we can add sounds and other rewards.
+function Group(completions, homes) {
+    this._completions = completions;
+    this._homes = homes;
+    var self = this;
+    function validate() { self._validate(); };
+    for (var i = 0; i < homes.length; i++) {
+        homes[i]._afterAddLetter = validate;
+    }
+}
+Group.prototype._validate = function() {
+    // Algorithm: eliminate matches every letter.
+    var matches = [];
+    for (var i = 0; i < this._completions.length; i++) matches.push(this._completions[i]);
+
+    for (var l = 0; l < this._homes.length; l++) {
+        var remaining = [];
+        var text = this._homes[l].text();
+        if (!text) return;
+
+        for (var m = 0; m < matches.length; m++) {
+           var requiredText = matches[m][l];
+           if (requiredText == text) remaining.push(matches[m]);
+        }
+        matches = remaining;
+    }
+    if (matches.length > 0) {
+        // Awesome! We have a match.
+        if (this._onMatch) this._onMatch();
+    }
+}
+
 if (!window.TBoard) window.TBoard = {};
 window.TBoard.Respawner = Respawner;
 window.TBoard.Letter = Letter;
 window.TBoard.Home = Home;
+window.TBoard.Group = Group;
 })();

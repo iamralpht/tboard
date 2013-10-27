@@ -1,0 +1,82 @@
+<html>
+<head>
+ <meta name="apple-mobile-web-app-capable" content="yes" />
+ <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+ <title>TBoard test</title>
+ <script src="../letter.js"></script>
+ <link rel="stylesheet" href="../letter.css"></link>
+</head>
+<body class="board">
+ <div class="respawners">
+  <div class="respawn" id="c"></div>
+  <div class="respawn" id="b"></div>
+  <div class="respawn" id="r"></div>
+  <div class="respawn" id="m"></div>
+  <div class="respawn" id="s"></div>
+ </div>
+ <div class="center">
+  <div class="left">
+   <ul>
+    <li class="group at"><div class="home"></div>at</li>
+    <li class="group at"><div class="home"></div>at</li>
+    <li class="group at"><div class="home"></div>at</li>
+    <li class="group an"><div class="home"></div>an</li>
+    <li class="group an"><div class="home"></div>an</li>
+    <li class="group an"><div class="home"></div>an</li>
+    <li class="group batman"><div class="home"></div>at<div class="home"></div>an</li>
+   </ul>
+  </div>
+  <div class="right">
+   <ul>
+    <li><div class="home"></div><div class="home"></div><div class="home"></div>r</li>
+    <li><div class="home"></div>e<div class="home"></div>r</li>
+   </ul>
+  </div>
+ </div>
+ <div class="sentences">
+  <ol>
+   <li>I kicked the b<div class="home"></div><div class="home"></div><div class="home"></div> into the goal!</li>
+   <li>The sky is California <div class="home"></div><div class="home"></div><div class="home"></div>e.</li>
+  </ol>
+ </div>
+ <script>
+var respawners = document.querySelectorAll('.respawn');
+for (var i = 0; i < respawners.length; i++) {
+    var e = respawners[i];
+    var template = document.createElement('div');
+    template.className = 'letter';
+    template.innerText = e.id;
+    var home = new TBoard.Respawner(e, template);
+    home.update();
+}
+
+var groups = document.querySelectorAll('.group');
+for (var i = 0; i < groups.length; i++) {
+    var g = groups[i];
+    var homes = [];
+    var homeElements = g.querySelectorAll('.home');
+    for (var x = 0; x < homeElements.length; x++) {
+        var h = new TBoard.Home(homeElements[x]);
+        h.update();
+        homes.push(h);
+    }
+    var completions = null;
+    if (g.classList.contains('an')) completions = [['c'], ['b'], ['r'], ['m']];
+    else if (g.classList.contains('at')) completions =[['c'], ['b'], ['r'], ['m'], ['s']];
+    else if (g.classList.contains('batman')) completions = [['b','m']];
+    var group = new TBoard.Group(completions, homes);
+    group._onMatch = function() { alert('yes'); };
+}
+
+/*
+var homes = document.querySelectorAll('.home');
+for (var i = 0; i < homes.length; i++) {
+    var e = homes[i];
+    var home = new TBoard.Home(e);
+    home.update();
+}
+*/
+document.body.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); }, false);
+ </script>
+</body>
+</html>
