@@ -255,12 +255,51 @@ Letter.prototype.setHomeTransform = function(t) {
     }
 }
 
+// A CompletionSet is a list of valid completions (each completion is a list with
+// a string for each letter). We use this instead of a raw array so that Groups
+// with the same CompletionSet can detect duplicates -- if you already spelled 'cat'
+// then you can't use 'cat' again.
+function CompletionSet(completions) {
+    this._completions = completions;
+    this._complete = {};
+}
+function completionKey(completion) {
+    var k = '';
+    for (var i = 0; i < completion.length; i++) k += completion[i];
+    return k;
+}
+
+CompletionSet.prototype.markComplete = function(completion, group) {
+    var k = completionKey(completion);
+    if (this._complete.hasOwnProperty(k))
+        this._complete[k].push(group);
+    else
+        this._complete[k] = [group];
+}
+CompletionSet.prototype.markIncomplete = function(completion, group) {
+    var k = completionKey(completion);
+    if (this._complete.hasOwnProperty(k)) {
+        var idx = this._complete[k].indexOf(group);
+        if (idx == -1) return;
+        this._complete[k].splice(idx, 1);
+        if (this._complete[k].length == 1) {
+            this._complete[k][0]._validate();
+        }
+    }
+}
+CompletionSet.prototype.completions = function() { return this._completions; }
+CompletionSet.prototype.completionCount = function(completion) {
+    var completedGroups = this._complete[completionKey(completion)];
+    return completedGroups ? completedGroups.length : 0;
+}
+
 // A Group is a set of homes with a set of permitted values (called completions). When
 // a completion is filled out, the homes can be animated away and replaced with the
 // completion to form the word. Eventually we can add sounds and other rewards.
-function Group(completions, homes) {
-    this._completions = completions;
+function Group(completionSet, homes) {
+    this._completionSet = completionSet;
     this._homes = homes;
+    this._currentCompletion = null;
     var self = this;
     function validate() { self._validate(); };
     for (var i = 0; i < homes.length; i++) {
@@ -270,8 +309,9 @@ function Group(completions, homes) {
 }
 Group.prototype._validate = function() {
     // Algorithm: eliminate matches every letter.
+    var completions = this._completionSet.completions();
     var matches = [];
-    for (var i = 0; i < this._completions.length; i++) matches.push(this._completions[i]);
+    for (var i = 0; i < completions.length; i++) matches.push(completions[i]);
 
     for (var l = 0; l < this._homes.length; l++) {
         var remaining = [];
@@ -287,9 +327,20 @@ Group.prototype._validate = function() {
         }
         matches = remaining;
     }
+    if (this._currentCompletion) {
+        this._completionSet.markIncomplete(this._currentCompletion, this);
+        this._currentCompletion = null;
+    }
     if (matches.length > 0) {
-        // Awesome! We have a match.
-        if (this._onMatch) this._onMatch();
+        // Awesome! We have a match -- but is it unique?
+        var alreadyUsed = this._completionSet.completionCount(matches[0]);
+        this._completionSet.markComplete(matches[0], this);
+        this._currentCompletion = matches[0];
+        if (!alreadyUsed) {
+            if (this._onMatch) this._onMatch();
+        } else {
+            if (this._onDuplicate) this._onDuplicate();
+        }
     } else {
         // No match.
         if (this._onNoMatch) this._onNoMatch();
@@ -300,5 +351,6 @@ if (!window.TBoard) window.TBoard = {};
 window.TBoard.Respawner = Respawner;
 window.TBoard.Letter = Letter;
 window.TBoard.Home = Home;
+window.TBoard.CompletionSet = CompletionSet;
 window.TBoard.Group = Group;
 })();

@@ -50,6 +50,15 @@ for (var i = 0; i < respawners.length; i++) {
 }
 
 var groups = document.querySelectorAll('.group');
+var sets = {
+    'an':   new TBoard.CompletionSet([['t'], ['n']]),
+    'at':   new TBoard.CompletionSet([['h']]),
+    'ank':  new TBoard.CompletionSet([['t'], ['h']]),
+    'thank':new TBoard.CompletionSet([['t', 'h']]),
+    'fat':  new TBoard.CompletionSet([['a', 't']]),
+    'bank': new TBoard.CompletionSet([['a', 'n', 'k']])
+    };
+
 for (var i = 0; i < groups.length; i++) {
     var g = groups[i];
     var homes = [];
@@ -60,17 +69,18 @@ for (var i = 0; i < groups.length; i++) {
         homes.push(h);
     }
     var completions = null;
-    if (g.classList.contains('an')) completions = [['t'], ['n']];
-    else if (g.classList.contains('at')) completions =[['h']];
-    else if (g.classList.contains('ank')) completions = [['t'], ['h']];
-    else if (g.classList.contains('thank')) completions = [['t', 'h']];
-    else if (g.classList.contains('fat')) completions = [['a', 't']];
-    else if (g.classList.contains('bank')) completions = [['a', 'n', 'k']];
+    if (g.classList.contains('an')) completions = sets['an'];
+    else if (g.classList.contains('at')) completions = sets['at'];
+    else if (g.classList.contains('ank')) completions = sets['ank'];
+    else if (g.classList.contains('thank')) completions = sets['thank'];
+    else if (g.classList.contains('fat')) completions = sets['fat'];
+    else if (g.classList.contains('bank')) completions = sets['bank'];
 
     var group = new TBoard.Group(completions, homes);
     function setMatchCallbacks(groupElem) {
-        group._onMatch = function() { groupElem.classList.add('correct'); };
-        group._onNoMatch = function() { groupElem.classList.remove('correct'); };
+        group._onMatch = function() { groupElem.classList.add('correct'); groupElem.classList.remove('duplicate'); };
+        group._onNoMatch = function() { groupElem.classList.remove('correct'); groupElem.classList.remove('duplicate'); };
+        group._onDuplicate = function() { groupElem.classList.add('duplicate'); };
     }
     setMatchCallbacks(g);
 }

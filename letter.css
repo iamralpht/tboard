@@ -73,4 +73,6 @@ body.board {
     padding: 12px 42px;
 }
 .board .sentences ol { margin: 0; }
+
 .correct { color: green; }
+.duplicate { color: orange; }
