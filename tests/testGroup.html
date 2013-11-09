@@ -8,22 +8,21 @@
 </head>
 <body class="board">
  <div class="respawners">
-  <div class="respawn" id="c"></div>
-  <div class="respawn" id="b"></div>
-  <div class="respawn" id="r"></div>
-  <div class="respawn" id="m"></div>
-  <div class="respawn" id="s"></div>
+  <div class="respawn" id="a"></div>
+  <div class="respawn" id="h"></div>
+  <div class="respawn" id="k"></div>
+  <div class="respawn" id="n"></div>
+  <div class="respawn" id="t"></div>
  </div>
  <div class="center">
   <div class="left">
    <ul>
     <li class="group at"><div class="home"></div>at</li>
-    <li class="group at"><div class="home"></div>at</li>
-    <li class="group at"><div class="home"></div>at</li>
     <li class="group an"><div class="home"></div>an</li>
     <li class="group an"><div class="home"></div>an</li>
-    <li class="group an"><div class="home"></div>an</li>
-    <li class="group batman"><div class="home"></div>at<div class="home"></div>an</li>
+    <li class="group ank"><div class="home"></div>ank</li>
+    <li class="group ank"><div class="home"></div>ank</li>
+    <li class="group thank"><div class="home"></div><div class="home"></div>ank</li>
    </ul>
   </div>
   <div class="right">
@@ -35,8 +34,8 @@
  </div>
  <div class="sentences">
   <ol>
-   <li>I kicked the b<div class="home"></div><div class="home"></div><div class="home"></div> into the goal!</li>
-   <li>The sky is California <div class="home"></div><div class="home"></div><div class="home"></div>e.</li>
+   <li class="group fat">My cat is f<div class="home"></div><div class="home"></div>.</li>
+   <li class="group bank">We went to the b<div class="home"></div><div class="home"></div><div class="home"></div>.
   </ol>
  </div>
  <script>
@@ -61,9 +60,13 @@ for (var i = 0; i < groups.length; i++) {
         homes.push(h);
     }
     var completions = null;
-    if (g.classList.contains('an')) completions = [['c'], ['b'], ['r'], ['m']];
-    else if (g.classList.contains('at')) completions =[['c'], ['b'], ['r'], ['m'], ['s']];
-    else if (g.classList.contains('batman')) completions = [['b','m']];
+    if (g.classList.contains('an')) completions = [['t'], ['n']];
+    else if (g.classList.contains('at')) completions =[['h']];
+    else if (g.classList.contains('ank')) completions = [['t'], ['h']];
+    else if (g.classList.contains('thank')) completions = [['t', 'h']];
+    else if (g.classList.contains('fat')) completions = [['a', 't']];
+    else if (g.classList.contains('bank')) completions = [['a', 'n', 'k']];
+
     var group = new TBoard.Group(completions, homes);
     group._onMatch = function() { console.log('yes'); };
 }
