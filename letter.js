@@ -70,14 +70,13 @@ Home.prototype.addLetter = function(letter) {
     if (idx == -1) this._letters.push(letter);
     if (!this._transform) this.update();
     letter.setHomeTransform(this._transform);
-    try {
-        if (this._afterAddLetter) this._afterAddLetter(letter);
-    } catch(e) {}
+    if (this._afterAddLetter) this._afterAddLetter(letter);
 }
 Home.prototype.removeLetter = function(letter) {
     if (this._onRemoveLetter) this._onRemoveLetter(letter);
     var idx = this._letters.indexOf(letter);
     if (idx != -1) this._letters.splice(idx, 1);
+    if (this._afterRemoveLetter) this._afterRemoveLetter(letter);
 }
 Home.prototype.update = function() {
     // Cheap-o; don't use transforms on anything else.
@@ -266,6 +265,7 @@ function Group(completions, homes) {
     function validate() { self._validate(); };
     for (var i = 0; i < homes.length; i++) {
         homes[i]._afterAddLetter = validate;
+        homes[i]._afterRemoveLetter = validate;
     }
 }
 Group.prototype._validate = function() {
@@ -276,7 +276,10 @@ Group.prototype._validate = function() {
     for (var l = 0; l < this._homes.length; l++) {
         var remaining = [];
         var text = this._homes[l].text();
-        if (!text) return;
+        if (!text) {
+            matches = [];
+            break;
+        }
 
         for (var m = 0; m < matches.length; m++) {
            var requiredText = matches[m][l];
@@ -287,6 +290,9 @@ Group.prototype._validate = function() {
     if (matches.length > 0) {
         // Awesome! We have a match.
         if (this._onMatch) this._onMatch();
+    } else {
+        // No match.
+        if (this._onNoMatch) this._onNoMatch();
     }
 }
 

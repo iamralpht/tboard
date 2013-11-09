@@ -68,7 +68,11 @@ for (var i = 0; i < groups.length; i++) {
     else if (g.classList.contains('bank')) completions = [['a', 'n', 'k']];
 
     var group = new TBoard.Group(completions, homes);
-    group._onMatch = function() { console.log('yes'); };
+    function setMatchCallbacks(groupElem) {
+        group._onMatch = function() { groupElem.classList.add('correct'); };
+        group._onNoMatch = function() { groupElem.classList.remove('correct'); };
+    }
+    setMatchCallbacks(g);
 }
 
 /*
