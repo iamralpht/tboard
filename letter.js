@@ -347,10 +347,95 @@ Group.prototype._validate = function() {
     }
 }
 
+function Builder(definition) {
+    var homes = [];
+
+    // Build all of the respawners.
+    var respawners = document.createElement('div');
+    respawners.className = 'respawners';
+    for (var i = 0; i < definition.letters.length; i++) {
+        var letter = definition.letters[i];
+        var r = document.createElement('div');
+        r.className = 'respawn';
+        r.id = letter;
+        var template = document.createElement('div');
+        template.className = 'letter';
+        template.innerText = definition.letters[i];
+        var home = new TBoard.Respawner(r, template);
+        respawners.appendChild(r);
+        homes.push(home);
+    }
+    document.body.appendChild(respawners);
+
+    // Build the center section, left and right.
+    var center = document.createElement('div');
+    center.className = 'center';
+    document.body.appendChild(center);
+
+    var sections = {};
+    if (definition.left) sections.left = definition.left;
+    if (definition.right) sections.right = definition.right;
+    if (definition.bottom) sections.bottom = definition.bottom;
+
+    for (var k in sections) {
+        if (!sections.hasOwnProperty(k)) continue;
+        var side = sections[k];
+        var e = document.createElement('div');
+        e.className = k;
+
+        if (k == 'bottom') document.body.appendChild(e);
+        else center.appendChild(e);
+
+        var ul = document.createElement('ul');
+        e.appendChild(ul);
+        // Now iterate the possible completions and create the prefixes or suffixes
+        // for them.
+        for (var c = 0; c < side.completions.length; c++) {
+            console.log('side',side, side.completions[c]);
+            var completion = side.completions[c];
+            var words = completion.words;
+
+            var completionSet = new CompletionSet(completion.completions);
+
+            for (var w = 0; w < words.length; w++) {
+                var groupHomes = [];
+                var word = words[w];
+                var li = document.createElement('li');
+                ul.appendChild(li);
+                // Iterate over the word and create homes where they're needed;
+                // underscore means home.
+                for (var l = 0; l < word.length; l++) {
+                    if (word[l] == "_") {
+                        var home = document.createElement('div');
+                        home.className = 'home';
+                        li.appendChild(home)
+                        var h = new Home(home);
+                        homes.push(h);
+                        groupHomes.push(h);
+                    } else {
+                        li.appendChild(document.createTextNode(word[l]));
+                    }
+                }
+                var group = new Group(completionSet, groupHomes);
+                function setMatchCallbacks(groupElem) {
+                    group._onMatch = function() { groupElem.classList.add('correct'); groupElem.classList.remove('duplicate'); };
+                    group._onNoMatch = function() { groupElem.classList.remove('correct'); groupElem.classList.remove('duplicate'); };
+                    group._onDuplicate = function() { groupElem.classList.add('duplicate'); };
+                }
+                setMatchCallbacks(li);
+            }
+        }
+    }
+
+    for (var i = 0; i < homes.length; i++) homes[i].update();
+    document.body.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); }, false);
+}
+
 if (!window.TBoard) window.TBoard = {};
 window.TBoard.Respawner = Respawner;
 window.TBoard.Letter = Letter;
 window.TBoard.Home = Home;
 window.TBoard.CompletionSet = CompletionSet;
 window.TBoard.Group = Group;
+window.TBoard.Builder = Builder;
 })();
