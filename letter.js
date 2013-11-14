@@ -393,13 +393,12 @@ function Builder(definition) {
         for (var c = 0; c < side.completions.length; c++) {
             console.log('side',side, side.completions[c]);
             var completion = side.completions[c];
-            var words = completion.words;
+            var word = completion.word;
 
             var completionSet = new CompletionSet(completion.completions);
 
-            for (var w = 0; w < words.length; w++) {
+            for (var w = 0; w < completion.completions.length; w++) {
                 var groupHomes = [];
-                var word = words[w];
                 var li = document.createElement('li');
                 ul.appendChild(li);
                 // Iterate over the word and create homes where they're needed;

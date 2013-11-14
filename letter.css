@@ -65,7 +65,7 @@ body.board {
 .board .center>.right {
     right: 0;
 }
-.board .sentences {
+.board .sentences, .board .bottom {
     box-sizing: border-box;
     position: absolute;
     bottom: 0px; width: 100%;

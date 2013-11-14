@@ -9,12 +9,30 @@
 <body class="board">
 <script>
 TBoard.Builder({
-    letters: "abn",
+    letters: "ahknt",
     left: {
         completions: [
-            { completions: [['a', 'b'], ['a', 'n']], words: ['n__', 'n__'] } /* I think I only ever want one word here... */
+            { completions: [['a', 'n'], ['a', 't']], word: '__' },
+            { completions: [['n', 'a', 'n'], ['h', 'a', 't'], ['t', 'a', 'n']], word: '___' },
+            { completions: ['hank', 'tank'], word: '____' },
+            { completions: ['thank'], word: '_____'},
             ]
-        }
+        },
+    right: {
+        completions: [
+            { completions: ['h'], word: '_at' },
+            { completions: ['t'], word: '_an' },
+            { completions: ['t', 'h'], word: '_ank' },
+            { completions: ['th'], word: '__ank' },
+            ]
+        },
+    bottom: {
+        completions: [
+            { completions: ['at'], word: 'My cat is f__.' },
+            { completions: ['ank'], word: 'We went to the b___.' }
+        ]
+    }
+
 });
  </script>
 </body>
