@@ -98,6 +98,7 @@ Home.prototype.position = function() {
 }
 Home.prototype.isEmpty = function(letter) { return this._letters.length == 0; }
 Home.prototype.text = function() { if (this._letters.length == 0) return null; return this._letters[0].text(); }
+Home.prototype.letters = function() { return this._letters; }
 
 //
 // Respawner, adapts a home to create new letters.
@@ -254,6 +255,21 @@ Letter.prototype.setHomeTransform = function(t) {
         this._element.style.webkitTransition = 'none';
     }
 }
+Letter.prototype.wave = function(duration, delay) {
+    var upTime = 0.3 * duration;
+    this._element.style.webkitTransition = '-webkit-transform ' + upTime + 'ms ' + delay + 'ms';
+    this._element.style.webkitTransform = this._homeTransform + ' translateY(-20px)';
+    this._element.addEventListener('webkitTransitionEnd', this._waveEnd.bind(this, 0.7 * duration), false);
+}
+Letter.prototype._waveEnd = function(duration, e) {
+    e.srcElement.removeEventListener('webkitTransitionEnd', arguments.callee, false);
+    // If our transition isn't 'none' then we can keep going. If it has become 'none' then
+    // there's a drag in progress.
+    if (this._element.style.webkitTransition != 'none') {
+        this._element.style.webkitTransition = '-webkit-transform ' + duration + 'ms';
+        this._element.style.webkitTransform = this._homeTransform;
+    }
+}
 
 // A CompletionSet is a list of valid completions (each completion is a list with
 // a string for each letter). We use this instead of a raw array so that Groups
@@ -355,8 +371,10 @@ function doWave(items) {
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
         var time = i * 30;
-        if (item instanceof Home) continue;
-        else {
+        if (item instanceof Home) {
+            var letters = item.letters();
+            for (var l = 0; l < letters.length; l++) letters[l].wave(500, time);
+        } else {
             item.addEventListener('webkitAnimationEnd', cleanup, false);
             item.style.webkitAnimation = 'wave 500ms ' + time + 'ms';
         }
@@ -429,6 +447,7 @@ function Builder(definition) {
                         var h = new Home(home);
                         homes.push(h);
                         groupHomes.push(h);
+                        letterElements.push(h);
                     } else {
                         if (word[l] === ' ') {
                             li.appendChild(document.createTextNode(' '));
