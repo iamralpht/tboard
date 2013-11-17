@@ -76,3 +76,10 @@ body.board {
 
 .correct { color: green; }
 .duplicate { color: orange; }
+
+@-webkit-keyframes wave {
+    0% { -webkit-transform: translateY(0); }
+    30% { -webkit-transform: translateY(-20px); }
+    100% { -webkit-transform: translateY(0); }
+}
+}

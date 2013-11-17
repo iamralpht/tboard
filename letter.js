@@ -347,6 +347,22 @@ Group.prototype._validate = function() {
     }
 }
 
+function doWave(items) {
+    function cleanup(e) {
+        e.srcElement.style.webkitAnimation = null;
+        e.srcElement.removeEventListener('webkitAnimationEnd', arguments.callee, false);
+    }
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var time = i * 30;
+        if (item instanceof Home) continue;
+        else {
+            item.addEventListener('webkitAnimationEnd', cleanup, false);
+            item.style.webkitAnimation = 'wave 500ms ' + time + 'ms';
+        }
+    }
+}
+
 function Builder(definition) {
     var homes = [];
 
@@ -391,7 +407,6 @@ function Builder(definition) {
         // Now iterate the possible completions and create the prefixes or suffixes
         // for them.
         for (var c = 0; c < side.completions.length; c++) {
-            console.log('side',side, side.completions[c]);
             var completion = side.completions[c];
             var word = completion.word;
 
@@ -401,6 +416,9 @@ function Builder(definition) {
                 var groupHomes = [];
                 var li = document.createElement('li');
                 ul.appendChild(li);
+                // Keep a list of the letter elements to make a reward animation
+                // on a correct completion.
+                var letterElements = [];
                 // Iterate over the word and create homes where they're needed;
                 // underscore means home.
                 for (var l = 0; l < word.length; l++) {
@@ -412,16 +430,24 @@ function Builder(definition) {
                         homes.push(h);
                         groupHomes.push(h);
                     } else {
-                        li.appendChild(document.createTextNode(word[l]));
+                        if (word[l] === ' ') {
+                            li.appendChild(document.createTextNode(' '));
+                        } else {
+                            var sp = document.createElement('span');
+                            sp.innerText = word[l];
+                            sp.style.display = 'inline-block'; // We use an animation for the reward, and those only work on blocks.
+                            li.appendChild(sp);
+                            letterElements.push(sp);
+                        }
                     }
                 }
                 var group = new Group(completionSet, groupHomes);
-                function setMatchCallbacks(groupElem) {
-                    group._onMatch = function() { groupElem.classList.add('correct'); groupElem.classList.remove('duplicate'); };
+                function setMatchCallbacks(groupElem, letterElements) {
+                    group._onMatch = function() { doWave(letterElements); groupElem.classList.add('correct'); groupElem.classList.remove('duplicate'); };
                     group._onNoMatch = function() { groupElem.classList.remove('correct'); groupElem.classList.remove('duplicate'); };
                     group._onDuplicate = function() { groupElem.classList.add('duplicate'); };
                 }
-                setMatchCallbacks(li);
+                setMatchCallbacks(li, letterElements);
             }
         }
     }
