@@ -1,0 +1,81 @@
+<html>
+<head>
+ <meta name="apple-mobile-web-app-capable" content="yes" />
+ <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+ <title>TBoard spelling</title>
+ <script src="letter.js"></script>
+ <link rel="stylesheet" href="letter.css"></link>
+</head>
+<body class="board">
+<script>
+var launcher = new TBoard.Launcher([
+{
+    title: "1",
+    board: {
+        letters: "alnpt",
+        left: [
+            { completions: ['an', 'at'], word: '__' },
+            { completions: ['lap', 'tap', 'nap', 'pan', 'pat', 'tan'], word: '___', limit: 3 },
+            { completions: ['plan'], word: '____' },
+            { completions: ['plant'], word: '_____' }
+        ],
+        right: [
+            { completions: ['p'], word: '_at' },
+            { completions: ['p', 't', 'n'], word: '_an' },
+            { completions: ['pl'], word: '__an' },
+        ],
+        bottom: [
+            { completions: ['at'], word: 'I have a black c__.' },
+            { completions: ['an'], word: 'We r__ home.' }
+        ]
+    },
+},
+{
+    title: "2",
+    board: {
+        letters: "achnt",
+        left: [
+            { completions: ['at', 'an'], word: '__' },
+            { completions: ['cat', 'tan', 'hat', 'can'], word: '___', limit: 3 },
+            { completions: ['chat', 'cant', 'than'], word: '____', limit: 1 },
+            { completions: ['catch', 'chant'], word: '_____', limit: 1 }
+        ],
+        right: [
+            { completions: ['h', 'c'], word: '_at', limit: 1 },
+            { completions: ['t', 'c', 'n'], word: '_an', limit: 2 },
+            { completions: ['th'], word: '__an' },
+            { completions: ['ch'], word: '__ant'},
+        ],
+        bottom: [
+            { completions: ['an'], word: 'The p__ is hot!' },
+            { completions: ['an'], word: 'I like to ride in a v__.' }
+        ]
+    },
+},   
+{
+    title: "5",
+    board: {
+        letters: "ahknt",
+        left: [
+                { completions: [['a', 'n'], ['a', 't']], word: '__' },
+                { completions: [['n', 'a', 'n'], ['h', 'a', 't'], ['t', 'a', 'n']], word: '___' },
+                { completions: ['hank', 'tank'], word: '____' },
+                { completions: ['thank'], word: '_____'},
+              ],
+        right: [
+                { completions: ['h'], word: '_at' },
+                { completions: ['t'], word: '_an' },
+                { completions: ['t', 'h'], word: '_ank' },
+                { completions: ['th'], word: '__ank' },
+               ],
+        bottom: [
+                { completions: ['at'], word: 'My cat is f__.' },
+                { completions: ['ank'], word: 'We went to the b___.' }
+            ]
+    },
+}
+]);
+document.body.appendChild(launcher.element());
+ </script>
+</body>
+</html>
