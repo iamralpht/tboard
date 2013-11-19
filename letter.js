@@ -103,7 +103,8 @@ Home.prototype.letters = function() { return this._letters; }
 //
 // Respawner, adapts a home to create new letters.
 //
-function Respawner(domElement, template) {
+function Respawner(domElement, template, parentElement) {
+    this._parentElement = parentElement || document.body;
     this._home = new Home(domElement);
     this._home.isEmpty = function(letter) { if (letter && letter.origin == this) return true; return false; };
 
@@ -137,7 +138,7 @@ Respawner.prototype._replenish = function() {
     if (this._letter) return;
     this._replenishing = true;
     var letterElem = this._template.cloneNode(true);
-    document.body.appendChild(letterElem);
+    this._parentElement.appendChild(letterElem);
     this._letter = new Letter(letterElem, this._home);
     this._letter.origin = this._home;
     this._letter.appear();
@@ -153,7 +154,8 @@ function Letter(domElement, home) {
     var self = this;
     this._element.addEventListener('touchstart', function(e) { self._start(e); }, false);
     this._element.addEventListener('touchmove', function(e) { self._move(e); }, false);
-    this._element.addEventListener('touchend', function(e) { self._end(e); }, false);
+    this._element.addEventListener('touchend', function(e) { self._end(e, false); }, false);
+    this._element.addEventListener('touchcancel', function(e) { self._end(e, true); }, false);
 
     this._homeTransform = id;
     this._home = home;
@@ -177,7 +179,7 @@ Letter.prototype.disappearAndRemove = function() {
     this._element.style.webkitTransform = small;
     var self = this;
     this._element.addEventListener('webkitTransitionEnd', function() { 
-        document.body.removeChild(self._element);
+        self._element.parentElement.removeChild(self._element);
         }, true);
 }
 Letter.prototype.text = function() { return this._element.innerText; }
@@ -216,7 +218,7 @@ Letter.prototype._move = function(e) {
         }
     }
 }
-Letter.prototype._end = function(e) {
+Letter.prototype._end = function(e, cancelled) {
     e.stopPropagation();
     e.preventDefault();
 
@@ -232,7 +234,7 @@ Letter.prototype._end = function(e) {
 
             var newHome = findNearestHome(tx.e, tx.f, 128);
 
-            if (!newHome) {
+            if (!newHome || cancelled) {
                 if (this._originalHome.isEmpty(this)) newHome = this._originalHome;
                 else newHome = findNearestHome(tx.e, tx.f, 65536); // XXX: Bogus! Should go back to our respawner!
             }
@@ -259,7 +261,9 @@ Letter.prototype.wave = function(duration, delay) {
     var upTime = 0.3 * duration;
     this._element.style.webkitTransition = '-webkit-transform ' + upTime + 'ms ' + delay + 'ms';
     this._element.style.webkitTransform = this._homeTransform + ' translateY(-20px)';
-    this._element.addEventListener('webkitTransitionEnd', this._waveEnd.bind(this, 0.7 * duration), false);
+
+    var self = this;
+    this._element.addEventListener('webkitTransitionEnd', function(e) { self._waveEnd(0.7 * duration, e); }, false);
 }
 Letter.prototype._waveEnd = function(duration, e) {
     e.srcElement.removeEventListener('webkitTransitionEnd', arguments.callee, false);
@@ -381,7 +385,11 @@ function doWave(items) {
     }
 }
 
-function Builder(definition) {
+function Builder(definition, parentElem) {
+    parentElem = parentElem || document.body;
+    var board = document.createElement('div');
+    board.className = 'screen board';
+    if (parentElem) parentElem.appendChild(board);
     var homes = [];
 
     // Build all of the respawners.
@@ -395,16 +403,16 @@ function Builder(definition) {
         var template = document.createElement('div');
         template.className = 'letter';
         template.innerText = definition.letters[i];
-        var home = new TBoard.Respawner(r, template);
+        var home = new TBoard.Respawner(r, template, board);
         respawners.appendChild(r);
         homes.push(home);
     }
-    document.body.appendChild(respawners);
+    board.appendChild(respawners);
 
     // Build the center section, left and right.
     var center = document.createElement('div');
     center.className = 'center';
-    document.body.appendChild(center);
+    board.appendChild(center);
 
     var sections = {};
     if (definition.left) sections.left = definition.left;
@@ -417,7 +425,7 @@ function Builder(definition) {
         var e = document.createElement('div');
         e.className = k;
 
-        if (k == 'bottom') document.body.appendChild(e);
+        if (k == 'bottom') board.appendChild(e);
         else center.appendChild(e);
 
         var ul = document.createElement('ul');
@@ -472,6 +480,81 @@ function Builder(definition) {
     }
 
     for (var i = 0; i < homes.length; i++) homes[i].update();
+
+    return { board: board, homes: homes };
+}
+
+// Launcher/start screen.
+function Launcher(boardDescriptions) {
+    this._element = document.createElement('div');
+    this._element.className = 'screen launcher';
+    var self = this;
+    for (var i = 0; i < boardDescriptions.length; i++) {
+        var desc = boardDescriptions[i];
+        var launcher = document.createElement('div');
+        launcher.className = 'launcher-item';
+        launcher.innerText = desc.title;
+        function addOpener(l, launcherElem, board) {
+            launcher.addEventListener('touchend', function() { l._open(launcherElem, board); }, false);
+        }
+        addOpener(this, launcher, desc.board);
+        this._element.appendChild(launcher);
+    }
+}
+Launcher.prototype.element = function() { return this._element; }
+Launcher.prototype._open = function(launcher, desc) {
+    var items = Builder(desc);
+    var board = items.board;
+    var homes = items.homes;
+    // Add a back button to the board.
+    var back = document.createElement('div');
+    back.className = 'back-button';
+    back.innerHTML = '&#x21e6;';
+    board.appendChild(back);
+    
+    // Terrible hacks; we shouldn't force so many recalcs :(.
+    board.style.webkitTransition = 'none';
+
+    // Now transition it so it looks like we zoomed.
+    var dw = document.body.offsetWidth;
+    var lw = launcher.offsetWidth;
+    var lx = launcher.offsetLeft;
+    var ly = launcher.offsetTop;
+
+    var boardTx = id.scale(lw/dw).translate(lx, ly);
+    board.style.webkitTransform = boardTx;
+    board.style.opacity = 0;
+
+    document.body.appendChild(board);
+
+    for (var i = 0; i < homes.length; i++) homes[i].update();
+
+    document.body.offsetLeft;
+
+    board.style.webkitTransition = null;
+    board.style.opacity = 1;
+    board.style.webkitTransform = null;
+    this._element.style.opacity = 0;
+    this._element.style.webkitTransform = boardTx.inverse();
+    this._element.style.pointerEvents = 'none';
+
+
+    back.addEventListener('touchend', this._back.bind(this, board, boardTx), false);
+}
+Launcher.prototype._back = function(from, tx) {
+    from.style.opacity = 0;
+    from.style.webkitTransform = tx;
+    from.style.pointerEvents = 'none';
+    this._element.style.opacity = 1;
+    this._element.style.webkitTransform = null;
+    this._element.style.pointerEvents = null;
+    from.addEventListener('webkitTransitionEnd', function(e) {
+        document.body.removeChild(e.srcElement);
+    }, false);
+}
+
+// Evil, but put it here.
+window.onload = function onload() {
     document.body.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); }, false);
 }
 
@@ -482,4 +565,5 @@ window.TBoard.Home = Home;
 window.TBoard.CompletionSet = CompletionSet;
 window.TBoard.Group = Group;
 window.TBoard.Builder = Builder;
+window.TBoard.Launcher = Launcher;
 })();

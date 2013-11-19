@@ -82,4 +82,30 @@ body.board {
     30% { -webkit-transform: translateY(-20px); }
     100% { -webkit-transform: translateY(0); }
 }
+
+.screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    -webkit-transform-origin: 0 0;
+    -webkit-transition: -webkit-transform 750ms, opacity 500ms;
+}
+
+.launcher-item {
+    text-align: center;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 25%; height: 25%;
+    border: 2px solid black;
+}
+
+.back-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 60px;
+    line-height: 100px;
+    height: 100px;
+    width: 100px;
+    padding-left: 10px;
+    color: #808080;
 }
