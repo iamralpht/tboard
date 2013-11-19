@@ -432,13 +432,14 @@ function Builder(definition, parentElem) {
         e.appendChild(ul);
         // Now iterate the possible completions and create the prefixes or suffixes
         // for them.
-        for (var c = 0; c < side.completions.length; c++) {
-            var completion = side.completions[c];
+        for (var c = 0; c < side.length; c++) {
+            var completion = side[c];
             var word = completion.word;
 
             var completionSet = new CompletionSet(completion.completions);
+            var length = completion.limit || completion.completions.length;
 
-            for (var w = 0; w < completion.completions.length; w++) {
+            for (var w = 0; w < length; w++) {
                 var groupHomes = [];
                 var li = document.createElement('li');
                 ul.appendChild(li);
@@ -521,7 +522,7 @@ Launcher.prototype._open = function(launcher, desc) {
     var lx = launcher.offsetLeft;
     var ly = launcher.offsetTop;
 
-    var boardTx = id.scale(lw/dw).translate(lx, ly);
+    var boardTx = id.translate(lx, ly).scale(lw/dw);
     board.style.webkitTransform = boardTx;
     board.style.opacity = 0;
 

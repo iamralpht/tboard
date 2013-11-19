@@ -90,12 +90,17 @@ body.board {
     -webkit-transition: -webkit-transform 750ms, opacity 500ms;
 }
 
+.launcher { text-align: center; }
+
 .launcher-item {
+    margin: 10px;
     text-align: center;
     box-sizing: border-box;
     display: inline-block;
     width: 25%; height: 25%;
     border: 2px solid black;
+    font-size: 80px;
+    line-height: 100%;
 }
 
 .back-button {

@@ -12,28 +12,22 @@ var launcher = new TBoard.Launcher([{
     title: "5",
     board: {
         letters: "ahknt",
-        left: {
-            completions: [
+        left: [
                 { completions: [['a', 'n'], ['a', 't']], word: '__' },
                 { completions: [['n', 'a', 'n'], ['h', 'a', 't'], ['t', 'a', 'n']], word: '___' },
                 { completions: ['hank', 'tank'], word: '____' },
                 { completions: ['thank'], word: '_____'},
-                ]
-            },
-        right: {
-            completions: [
+              ],
+        right: [
                 { completions: ['h'], word: '_at' },
                 { completions: ['t'], word: '_an' },
                 { completions: ['t', 'h'], word: '_ank' },
                 { completions: ['th'], word: '__ank' },
-                ]
-            },
-        bottom: {
-            completions: [
+               ],
+        bottom: [
                 { completions: ['at'], word: 'My cat is f__.' },
                 { completions: ['ank'], word: 'We went to the b___.' }
-            ]
-        }
+            ],
     },
     },
     {
