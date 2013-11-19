@@ -117,6 +117,7 @@ function Respawner(domElement, template, parentElement) {
 
     this._replenish();
 }
+Respawner.prototype.dispose = function() { this._home.dispose(); }
 Respawner.prototype._onAddLetter = function(letter) {
     if (this._replenishing) return;
     // We're taking back an old letter. Destroy the letter that we're currently holding.
@@ -540,9 +541,14 @@ Launcher.prototype._open = function(launcher, desc) {
     this._element.style.pointerEvents = 'none';
 
 
-    back.addEventListener('touchend', this._back.bind(this, board, boardTx), false);
+    function addBack(l, board, homes, boardTx) {
+        back.addEventListener('touchend', function() { l._back(board, homes, boardTx); }, false);
+    }
+    addBack(this, board, homes, boardTx);
 }
-Launcher.prototype._back = function(from, tx) {
+Launcher.prototype._back = function(from, homes, tx) {
+    for (var i = 0; i < homes.length; i++)
+        homes[i].dispose();
     from.style.opacity = 0;
     from.style.webkitTransform = tx;
     from.style.pointerEvents = 'none';
