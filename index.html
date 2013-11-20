@@ -25,7 +25,7 @@ var launcher = new TBoard.Launcher([
             { completions: ['pl'], word: '__an' },
         ],
         bottom: [
-            { completions: ['at'], word: 'I have a black c__.' },
+            { completions: ['at', 'ap'], word: 'I have a black c__.', limit: 1 },
             { completions: ['an'], word: 'We r__ home.' }
         ]
     },
@@ -51,14 +51,58 @@ var launcher = new TBoard.Launcher([
             { completions: ['an'], word: 'I like to ride in a v__.' }
         ]
     },
-},   
+},
+{
+    title: "3",
+    board: {
+        letters: "ahmss",
+        left: [
+            { completions: ['am', 'as'], word: '__' },
+            { completions: ['ham', 'has'], word: '___', limit: 3 }, // XXX: Need more words!
+            { completions: ['mash', 'mass', 'sham', 'hams', 'sash', 'hash'], word: '____', limit: 1 },
+            { completions: ['smash', 'shams'], word: '_____' }
+        ],
+        right: [
+            { completions: ['h'], word: '_as' },
+            { completions: ['h', 's'], word: '_am' },
+            { completions: ['s', 'h', 'm'], word: '_ash' },
+            { completions: ['sm'], word: '__ash' }
+        ],
+        bottom: [
+            { completions: ['am'], word: 'Do you like j__?' },
+            { completions: ['ash'], word: 'The car was in a cr___!' }
+        ]
+    }
+},
+{
+    title: "4",
+    board: {
+        letters: "ackns",
+        left: [
+            { completions: ['an'], word: '__', limit: 2 }, // XXX: Need more words
+            { completions: ['can'], word: '___', limit: 2 }, // XXX: Need more words
+            { completions: ['scan', 'sack', 'cask', 'sank'], word: '____' },
+            { completions: ['sacks', 'knack'], word: '_____', limit: 1 }
+        ],
+        right: [
+            { completions: ['c'], word: '_an' }, // XXX: all of these need more words if possible.
+            { completions: ['sc'], word: '__an' },
+            { completions: ['s'], word: '_ack' },
+            { completions: ['kn'], word: '__ack' },
+        ],
+        bottom: [
+            { completions: ['ack'], word: 'Do you like to run on the tr___?' },
+            { completions: ['an'], word: 'My dog is a t__ color.' }
+        ]
+    }
+},
 {
     title: "5",
     board: {
         letters: "ahknt",
         left: [
-                { completions: [['a', 'n'], ['a', 't']], word: '__' },
-                { completions: [['n', 'a', 'n'], ['h', 'a', 't'], ['t', 'a', 'n']], word: '___' },
+                { completions: ['an', 'at'], word: '__' },
+                { completions: ['hat', 'tan'], word: '___' },
                 { completions: ['hank', 'tank'], word: '____' },
                 { completions: ['thank'], word: '_____'},
               ],
