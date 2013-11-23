@@ -158,6 +158,10 @@ function Letter(domElement, home) {
     this._element.addEventListener('touchend', function(e) { self._end(e, false); }, false);
     this._element.addEventListener('touchcancel', function(e) { self._end(e, true); }, false);
 
+    this._element.addEventListener('mousedown', function(e) { self._start(e); }, false);
+    this._element.addEventListener('mousemove', function(e) { self._move(e); }, false);
+    this._element.addEventListener('mouseup', function(e) { self._end(e,false); }, false);
+
     this._homeTransform = id;
     this._home = home;
     this._originalHome = home;
@@ -193,9 +197,15 @@ Letter.prototype._start = function(e) {
     //      less of an issue because each letter is pretty small.
     if (this.hasOwnProperty('_tracking')) return;
 
-    this._tracking = e.changedTouches[0].identifier;
+    if (e.type == 'touchstart') {
+        this._tracking = e.changedTouches[0].identifier;
+        this._startPoint = { x: e.changedTouches[0].pageX, y: e.changedTouches[0].pageY };
+    } else {
+        // Mousedown
+        this._tracking = 'mouse';
+        this._startPoint = { x: e.pageX, y: e.pageY };
+    }
     this._startTransform = new WebKitCSSMatrix(window.getComputedStyle(this._element).webkitTransform);
-    this._startPoint = { x: e.changedTouches[0].pageX, y: e.changedTouches[0].pageY };
 
     this._element.style.webkitTransform = this._startTransform;
     this._element.style.webkitTransition = 'none';
@@ -209,15 +219,23 @@ Letter.prototype._move = function(e) {
     e.preventDefault();
 
     if (!this.hasOwnProperty('_tracking')) return;
-    for (var i = 0; i < e.changedTouches.length; i++) {
-        var t = e.changedTouches[i];
-        if (t.identifier == this._tracking) {
-            var point = { x: t.pageX - this._startPoint.x, y: t.pageY - this._startPoint.y };
-            // TODO: Add some rotation based on angle of velocity.
-            var tx = this._startTransform.translate(point.x, point.y);
-            this._element.style.webkitTransform = tx;
+
+    var point = null;
+
+    if (e.type == 'mousemove') {
+        point = { x: e.pageX - this._startPoint.x, y: e.pageY - this._startPoint.y };
+    } else {
+        for (var i = 0; i < e.changedTouches.length; i++) {
+            var t = e.changedTouches[i];
+            if (t.identifier == this._tracking) {
+                point = { x: t.pageX - this._startPoint.x, y: t.pageY - this._startPoint.y };
+            }
         }
     }
+    if (!point) return;
+    // TODO: Add some rotation based on angle of velocity.
+    var tx = this._startTransform.translate(point.x, point.y);
+    this._element.style.webkitTransform = tx;
 }
 Letter.prototype._end = function(e, cancelled) {
     e.stopPropagation();
@@ -225,31 +243,40 @@ Letter.prototype._end = function(e, cancelled) {
 
     if (!this.hasOwnProperty('_tracking')) return;
 
-    for (var i = 0; i < e.changedTouches.length; i++) {
-        var t = e.changedTouches[i];
-        if (t.identifier == this._tracking) {
+    var point = null;
 
-            var point = { x: t.pageX - this._startPoint.x, y: t.pageY - this._startPoint.y };
-            var tx = this._startTransform.translate(point.x, point.y);
-            this._element.style.webkitTransform = tx;
-
-            var newHome = findNearestHome(tx.e, tx.f, 128);
-
-            if (!newHome || cancelled) {
-                if (this._originalHome.isEmpty(this)) newHome = this._originalHome;
-                else newHome = findNearestHome(tx.e, tx.f, 65536); // XXX: Bogus! Should go back to our respawner!
+    if (e.type == 'mouseup') {
+        console.log('mouseup');
+        point = { x: e.pageX - this._startPoint.x, y: e.pageY - this._startPoint.y };
+    } else {
+        for (var i = 0; i < e.changedTouches.length; i++) {
+            var t = e.changedTouches[i];
+            if (t.identifier == this._tracking) {
+                point = { x: t.pageX - this._startPoint.x, y: t.pageY - this._startPoint.y };
             }
-
-            if (newHome) {
-                this._home = newHome;
-                this._home.addLetter(this);
-            }
-
-            this._element.style.webkitTransform = this._homeTransform;
-            this._element.style.webkitTransition = '-webkit-transform 500ms';
-            delete this._tracking;
         }
     }
+
+    if (!point) return;
+
+    var tx = this._startTransform.translate(point.x, point.y);
+    this._element.style.webkitTransform = tx;
+
+    var newHome = findNearestHome(tx.e, tx.f, 128);
+
+    if (!newHome || cancelled) {
+        if (this._originalHome.isEmpty(this)) newHome = this._originalHome;
+        else newHome = findNearestHome(tx.e, tx.f, 65536); // XXX: Bogus! Should go back to our respawner!
+    }
+
+    if (newHome) {
+        this._home = newHome;
+        this._home.addLetter(this);
+    }
+
+    this._element.style.webkitTransform = this._homeTransform;
+    this._element.style.webkitTransition = '-webkit-transform 500ms';
+    delete this._tracking;
 }
 Letter.prototype.setHomeTransform = function(t) {
     this._homeTransform = t;
@@ -498,6 +525,7 @@ function Launcher(boardDescriptions) {
         launcher.innerText = desc.title;
         function addOpener(l, launcherElem, board) {
             launcher.addEventListener('touchend', function() { l._open(launcherElem, board); }, false);
+            launcher.addEventListener('click', function() { l._open(launcherElem, board); }, false);
         }
         addOpener(this, launcher, desc.board);
         this._element.appendChild(launcher);
@@ -543,6 +571,7 @@ Launcher.prototype._open = function(launcher, desc) {
 
     function addBack(l, board, homes, boardTx) {
         back.addEventListener('touchend', function() { l._back(board, homes, boardTx); }, false);
+        back.addEventListener('click', function() { l._back(board, homes, boardTx); }, false);
     }
     addBack(this, board, homes, boardTx);
 }
