@@ -2,6 +2,37 @@
 // Copyright 2013 (C) Ralph Thomas
 
 (function() {
+var properties = {};
+var events = {};
+
+(function() {
+    var d = document.createElement('div');
+    function findPrefix(prop) {
+        if (d.style[prop] != undefined) return prop;
+        if (d.style['-webkit-' + prop] != undefined) return '-webkit-' + prop;
+        if (d.style['-moz-' + prop] != undefined) return '-moz-' + prop;
+        if (d.style['-ms-' + prop] != undefined) return '-ms-' + prop;
+        if (d.style['-o-' + prop] != undefined) return '-o-' + prop;
+        return undefined;
+    }
+    function findEvent(ename, prop) {
+        // WebKit, for some reason, supports the unprefixed "transition" property
+        // but doesn't support the unprefixed "transitionEnd" event!
+        if (d.style['-webkit-' + prop] != undefined) return 'webkit' + ename;
+        if (d.style['-moz-' + prop] != undefined) return 'moz' + ename;
+        if (d.style['-ms-' + prop] != undefined) return 'MS' + ename;
+        if (d.style['-o-' + prop] != undefined) return 'o' + ename;
+        if (d.style[prop] != undefined) return ename;
+        return undefined;
+    }
+    properties.transform = findPrefix('transform');
+    properties.transition = findPrefix('transition');
+    properties.animation = findPrefix('animation');
+    events.transitionend = findEvent('TransitionEnd', 'transition');
+    events.animationend = findEvent('AnimationEnd', 'animation');
+
+    console.log('properties',  properties, 'events', events);
+})();
 
 //
 // Letter comes in three parts:
@@ -169,21 +200,21 @@ function Letter(domElement, home) {
     home.addLetter(this);
 }
 Letter.prototype.appear = function() {
-    this._element.style.webkitTransform = this._homeTransform.scale(0.1);
-    this._element.style.webkitTransition = 'none';
+    this._element.style[properties.transform] = this._homeTransform.scale(0.1);
+    this._element.style[properties.transition] = 'none';
     document.body.offsetLeft;
-    this._element.style.webkitTransform = this._homeTransform;
-    this._element.style.webkitTransition = '-webkit-transform 450ms';
+    this._element.style[properties.transform] = this._homeTransform;
+    this._element.style[properties.transition] = '-webkit-transform 450ms';
 }
 Letter.prototype.disappearAndRemove = function() {
     if (this._home) this._home.removeLetter(this._letter);
 
     var cstyle = window.getComputedStyle(this._element);
-    var small = new FirminCSSMatrix(cstyle.webkitTransform).scale(0.05);
-    this._element.style.webkitTransition = '-webkit-transform 450ms';
-    this._element.style.webkitTransform = small;
+    var small = new FirminCSSMatrix(cstyle[properties.transform]).scale(0.05);
+    this._element.style[properties.transition] = '-webkit-transform 450ms';
+    this._element.style[properties.transform] = small;
     var self = this;
-    this._element.addEventListener('webkitTransitionEnd', function() { 
+    this._element.addEventListener(events.transitionend, function() { 
         self._element.parentElement.removeChild(self._element);
         }, true);
 }
@@ -205,10 +236,10 @@ Letter.prototype._start = function(e) {
         this._tracking = 'mouse';
         this._startPoint = { x: e.pageX, y: e.pageY };
     }
-    this._startTransform = new FirminCSSMatrix(window.getComputedStyle(this._element).webkitTransform);
+    this._startTransform = new FirminCSSMatrix(window.getComputedStyle(this._element)[properties.transform]);
 
-    this._element.style.webkitTransform = this._startTransform;
-    this._element.style.webkitTransition = 'none';
+    this._element.style[properties.transform] = this._startTransform;
+    this._element.style[properties.transition] = 'none';
     this._element.style.zIndex = (++lastZIndex);
     
     this._home.removeLetter(this);
@@ -235,7 +266,7 @@ Letter.prototype._move = function(e) {
     if (!point) return;
     // TODO: Add some rotation based on angle of velocity.
     var tx = this._startTransform.translate(point.x, point.y);
-    this._element.style.webkitTransform = tx;
+    this._element.style[properties.transform] = tx;
 }
 Letter.prototype._end = function(e, cancelled) {
     e.stopPropagation();
@@ -246,7 +277,6 @@ Letter.prototype._end = function(e, cancelled) {
     var point = null;
 
     if (e.type == 'mouseup') {
-        console.log('mouseup');
         point = { x: e.pageX - this._startPoint.x, y: e.pageY - this._startPoint.y };
     } else {
         for (var i = 0; i < e.changedTouches.length; i++) {
@@ -260,7 +290,7 @@ Letter.prototype._end = function(e, cancelled) {
     if (!point) return;
 
     var tx = this._startTransform.translate(point.x, point.y);
-    this._element.style.webkitTransform = tx;
+    this._element.style[properties.transform] = tx;
 
     var newHome = findNearestHome(tx.e, tx.f, 128);
 
@@ -274,32 +304,33 @@ Letter.prototype._end = function(e, cancelled) {
         this._home.addLetter(this);
     }
 
-    this._element.style.webkitTransform = this._homeTransform;
-    this._element.style.webkitTransition = '-webkit-transform 500ms';
+    this._element.style[properties.transform] = this._homeTransform;
+    this._element.style[properties.transition] = '-webkit-transform 500ms';
     delete this._tracking;
 }
 Letter.prototype.setHomeTransform = function(t) {
     this._homeTransform = t;
     if (!this.hasOwnProperty('_tracking')) {
-        this._element.style.webkitTransform = this._homeTransform;
-        this._element.style.webkitTransition = 'none';
+        this._element.style[properties.transform] = this._homeTransform;
+        this._element.style[properties.transition] = 'none';
     }
 }
 Letter.prototype.wave = function(duration, delay) {
     var upTime = 0.3 * duration;
-    this._element.style.webkitTransition = '-webkit-transform ' + upTime + 'ms ' + delay + 'ms';
-    this._element.style.webkitTransform = this._homeTransform + ' translateY(-20px)';
+    this._element.style[properties.transition] = '-webkit-transform ' + upTime + 'ms ' + delay + 'ms';
+    this._element.style[properties.transform] = this._homeTransform + ' translateY(-20px)';
 
     var self = this;
-    this._element.addEventListener('webkitTransitionEnd', function(e) { self._waveEnd(0.7 * duration, e); }, false);
+    this._element.addEventListener(events.transitionend, function(e) { self._waveEnd(0.7 * duration, e); }, false);
 }
 Letter.prototype._waveEnd = function(duration, e) {
-    e.srcElement.removeEventListener('webkitTransitionEnd', arguments.callee, false);
+    console.log('transition end');
+    e.srcElement.removeEventListener(events.transitionend, arguments.callee, false);
     // If our transition isn't 'none' then we can keep going. If it has become 'none' then
     // there's a drag in progress.
-    if (this._element.style.webkitTransition != 'none') {
-        this._element.style.webkitTransition = '-webkit-transform ' + duration + 'ms';
-        this._element.style.webkitTransform = this._homeTransform;
+    if (this._element.style[properties.transition] != 'none') {
+        this._element.style[properties.transition] = '-webkit-transform ' + duration + 'ms';
+        this._element.style[properties.transform] = this._homeTransform;
     }
 }
 
@@ -397,8 +428,8 @@ Group.prototype._validate = function() {
 
 function doWave(items) {
     function cleanup(e) {
-        e.srcElement.style.webkitAnimation = null;
-        e.srcElement.removeEventListener('webkitAnimationEnd', arguments.callee, false);
+        e.srcElement.style[properties.animation] = null;
+        e.srcElement.removeEventListener(events.animationend, arguments.callee, false);
     }
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
@@ -407,8 +438,8 @@ function doWave(items) {
             var letters = item.letters();
             for (var l = 0; l < letters.length; l++) letters[l].wave(500, time);
         } else {
-            item.addEventListener('webkitAnimationEnd', cleanup, false);
-            item.style.webkitAnimation = 'wave 500ms ' + time + 'ms';
+            item.addEventListener(events.animationend, cleanup, false);
+            item.style[properties.animation] = 'wave 500ms ' + time + 'ms';
         }
     }
 }
@@ -543,7 +574,7 @@ Launcher.prototype._open = function(launcher, desc) {
     board.appendChild(back);
     
     // Terrible hacks; we shouldn't force so many recalcs :(.
-    board.style.webkitTransition = 'none';
+    board.style[properties.transition] = 'none';
 
     // Now transition it so it looks like we zoomed.
     var dw = document.body.offsetWidth;
@@ -552,7 +583,7 @@ Launcher.prototype._open = function(launcher, desc) {
     var ly = launcher.offsetTop;
 
     var boardTx = id.translate(lx, ly).scale(lw/dw);
-    board.style.webkitTransform = boardTx;
+    board.style[properties.transform] = boardTx;
     board.style.opacity = 0;
 
     document.body.appendChild(board);
@@ -561,11 +592,11 @@ Launcher.prototype._open = function(launcher, desc) {
 
     document.body.offsetLeft;
 
-    board.style.webkitTransition = null;
+    board.style[properties.transition] = null;
     board.style.opacity = 1;
-    board.style.webkitTransform = null;
+    board.style[properties.transform] = null;
     this._element.style.opacity = 0;
-    this._element.style.webkitTransform = boardTx.inverse();
+    this._element.style[properties.transform] = boardTx.inverse();
     this._element.style.pointerEvents = 'none';
 
 
@@ -579,12 +610,12 @@ Launcher.prototype._back = function(from, homes, tx) {
     for (var i = 0; i < homes.length; i++)
         homes[i].dispose();
     from.style.opacity = 0;
-    from.style.webkitTransform = tx;
+    from.style[properties.transform] = tx;
     from.style.pointerEvents = 'none';
     this._element.style.opacity = 1;
-    this._element.style.webkitTransform = null;
+    this._element.style[properties.transform] = null;
     this._element.style.pointerEvents = null;
-    from.addEventListener('webkitTransitionEnd', function(e) {
+    from.addEventListener(events.transitionend, function(e) {
         document.body.removeChild(e.srcElement);
     }, false);
 }
