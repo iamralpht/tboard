@@ -19,10 +19,10 @@ var events = {};
         // WebKit, for some reason, supports the unprefixed "transition" property
         // but doesn't support the unprefixed "transitionEnd" event!
         if (d.style['-webkit-' + prop] != undefined) return 'webkit' + ename;
+        if (d.style[prop] != undefined) return ename;
         if (d.style['-moz-' + prop] != undefined) return 'moz' + ename;
         if (d.style['-ms-' + prop] != undefined) return 'MS' + ename;
         if (d.style['-o-' + prop] != undefined) return 'o' + ename;
-        if (d.style[prop] != undefined) return ename;
         return undefined;
     }
     properties.transform = findPrefix('transform');
@@ -204,14 +204,14 @@ Letter.prototype.appear = function() {
     this._element.style[properties.transition] = 'none';
     document.body.offsetLeft;
     this._element.style[properties.transform] = this._homeTransform;
-    this._element.style[properties.transition] = '-webkit-transform 450ms';
+    this._element.style[properties.transition] = properties.transform + ' 450ms';
 }
 Letter.prototype.disappearAndRemove = function() {
     if (this._home) this._home.removeLetter(this._letter);
 
     var cstyle = window.getComputedStyle(this._element);
     var small = new FirminCSSMatrix(cstyle[properties.transform]).scale(0.05);
-    this._element.style[properties.transition] = '-webkit-transform 450ms';
+    this._element.style[properties.transition] = properties.transform + ' 450ms';
     this._element.style[properties.transform] = small;
     var self = this;
     this._element.addEventListener(events.transitionend, function() { 
@@ -305,7 +305,7 @@ Letter.prototype._end = function(e, cancelled) {
     }
 
     this._element.style[properties.transform] = this._homeTransform;
-    this._element.style[properties.transition] = '-webkit-transform 500ms';
+    this._element.style[properties.transition] = properties.transform + ' 500ms';
     delete this._tracking;
 }
 Letter.prototype.setHomeTransform = function(t) {
@@ -317,7 +317,7 @@ Letter.prototype.setHomeTransform = function(t) {
 }
 Letter.prototype.wave = function(duration, delay) {
     var upTime = 0.3 * duration;
-    this._element.style[properties.transition] = '-webkit-transform ' + upTime + 'ms ' + delay + 'ms';
+    this._element.style[properties.transition] = properties.transform + ' ' + upTime + 'ms ' + delay + 'ms';
     this._element.style[properties.transform] = this._homeTransform + ' translateY(-20px)';
 
     var self = this;
@@ -329,7 +329,7 @@ Letter.prototype._waveEnd = function(duration, e) {
     // If our transition isn't 'none' then we can keep going. If it has become 'none' then
     // there's a drag in progress.
     if (this._element.style[properties.transition] != 'none') {
-        this._element.style[properties.transition] = '-webkit-transform ' + duration + 'ms';
+        this._element.style[properties.transition] = properties.transform + ' ' + duration + 'ms';
         this._element.style[properties.transform] = this._homeTransform;
     }
 }

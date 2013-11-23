@@ -77,6 +77,11 @@ body.board {
 .correct { color: green; }
 .duplicate { color: orange; }
 
+@keyframes wave {
+    0% { transform: translateY(0); }
+    30% { transform: translateY(-20px); }
+    100% { transform: translateY(0); }
+}
 @-webkit-keyframes wave {
     0% { -webkit-transform: translateY(0); }
     30% { -webkit-transform: translateY(-20px); }
@@ -86,7 +91,9 @@ body.board {
 .screen {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
+    transform-origin: 0 0;
     -webkit-transform-origin: 0 0;
+    transition: transform 750ms, opacity 500ms;
     -webkit-transition: -webkit-transform 750ms, opacity 500ms;
 }
 
