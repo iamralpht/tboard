@@ -10,7 +10,7 @@
 //  3. A respawner, which is bound to a home and creates a letter when one is removed.
 //
 
-var id = new WebKitCSSMatrix();
+var id = new FirminCSSMatrix();
 //
 // An array of all the live home instances. We iterate these to update them when the document gets resized.
 //
@@ -179,7 +179,7 @@ Letter.prototype.disappearAndRemove = function() {
     if (this._home) this._home.removeLetter(this._letter);
 
     var cstyle = window.getComputedStyle(this._element);
-    var small = new WebKitCSSMatrix(cstyle.webkitTransform).scale(0.05);
+    var small = new FirminCSSMatrix(cstyle.webkitTransform).scale(0.05);
     this._element.style.webkitTransition = '-webkit-transform 450ms';
     this._element.style.webkitTransform = small;
     var self = this;
@@ -205,7 +205,7 @@ Letter.prototype._start = function(e) {
         this._tracking = 'mouse';
         this._startPoint = { x: e.pageX, y: e.pageY };
     }
-    this._startTransform = new WebKitCSSMatrix(window.getComputedStyle(this._element).webkitTransform);
+    this._startTransform = new FirminCSSMatrix(window.getComputedStyle(this._element).webkitTransform);
 
     this._element.style.webkitTransform = this._startTransform;
     this._element.style.webkitTransition = 'none';
