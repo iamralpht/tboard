@@ -218,7 +218,7 @@ Letter.prototype.disappearAndRemove = function() {
         self._element.parentElement.removeChild(self._element);
         }, true);
 }
-Letter.prototype.text = function() { return this._element.innerText; }
+Letter.prototype.text = function() { return this._element.textContent; }
 var lastZIndex = 1;
 Letter.prototype._start = function(e) {
     e.stopPropagation();
@@ -461,7 +461,7 @@ function Builder(definition, parentElem) {
         r.id = letter;
         var template = document.createElement('div');
         template.className = 'letter';
-        template.innerText = definition.letters[i];
+        template.textContent = definition.letters[i];
         var home = new TBoard.Respawner(r, template, board);
         respawners.appendChild(r);
         homes.push(home);
@@ -521,7 +521,7 @@ function Builder(definition, parentElem) {
                             li.appendChild(document.createTextNode(' '));
                         } else {
                             var sp = document.createElement('span');
-                            sp.innerText = word[l];
+                            sp.textContent = word[l];
                             sp.style.display = 'inline-block'; // We use an animation for the reward, and those only work on blocks.
                             li.appendChild(sp);
                             letterElements.push(sp);
@@ -553,7 +553,7 @@ function Launcher(boardDescriptions) {
         var desc = boardDescriptions[i];
         var launcher = document.createElement('div');
         launcher.className = 'launcher-item';
-        launcher.innerText = desc.title;
+        launcher.textContent = desc.title;
         function addOpener(l, launcherElem, board) {
             launcher.addEventListener('touchend', function() { l._open(launcherElem, board); }, false);
             launcher.addEventListener('click', function() { l._open(launcherElem, board); }, false);
