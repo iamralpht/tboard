@@ -187,15 +187,25 @@ function Letter(domElement, home) {
     this._element.addEventListener('touchend', function(e) { self._end(e, false); }, false);
     this._element.addEventListener('touchcancel', function(e) { self._end(e, true); }, false);
 
-    this._element.addEventListener('mousedown', function(e) { self._start(e); }, false);
-    this._element.addEventListener('mousemove', function(e) { self._move(e); }, false);
-    this._element.addEventListener('mouseup', function(e) { self._end(e,false); }, false);
+    this._element.addEventListener('mousedown', function(e) { Letter._draggingLetter = self; self._start(e); }, false);
 
     this._homeTransform = id;
     this._home = home;
     this._originalHome = home;
 
     home.addLetter(this);
+}
+// The mousemove and mouseup events get read from the body because otherwise if the cursor
+// leaves the element that's being dragged (by moving too far in one frame) then that letter
+// will stop receiving the mousemoves.
+Letter.mousemove = function(e) {
+    if (!Letter._draggingLetter) return;
+    Letter._draggingLetter._move(e);
+}
+Letter.mouseup = function(e) {
+    if (!Letter._draggingLetter) return;
+    Letter._draggingLetter._end(e, false);
+    Letter._draggingLetter = null;
 }
 Letter.prototype.appear = function() {
     this._element.style[properties.transform] = this._homeTransform.scale(0.1);
@@ -620,6 +630,8 @@ Launcher.prototype._back = function(from, homes, tx) {
 // Evil, but put it here.
 window.onload = function onload() {
     document.body.addEventListener('touchstart', function(e) { e.preventDefault(); e.stopPropagation(); }, false);
+    document.body.addEventListener('mousemove', function(e) { Letter.mousemove(e); }, false);
+    document.body.addEventListener('mouseup', function(e) { Letter.mouseup(e); }, false);
 }
 
 if (!window.TBoard) window.TBoard = {};
