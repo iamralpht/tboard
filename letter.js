@@ -19,7 +19,7 @@ var events = {};
         // WebKit, for some reason, supports the unprefixed "transition" property
         // but doesn't support the unprefixed "transitionEnd" event!
         if (d.style['-webkit-' + prop] != undefined) return 'webkit' + ename;
-        if (d.style[prop] != undefined) return ename;
+        if (d.style[prop] != undefined) return ename.toLowerCase();
         if (d.style['-moz-' + prop] != undefined) return 'moz' + ename;
         if (d.style['-ms-' + prop] != undefined) return 'MS' + ename;
         if (d.style['-o-' + prop] != undefined) return 'o' + ename;
@@ -30,8 +30,6 @@ var events = {};
     properties.animation = findPrefix('animation');
     events.transitionend = findEvent('TransitionEnd', 'transition');
     events.animationend = findEvent('AnimationEnd', 'animation');
-
-    console.log('properties',  properties, 'events', events);
 })();
 
 //
@@ -324,8 +322,7 @@ Letter.prototype.wave = function(duration, delay) {
     this._element.addEventListener(events.transitionend, function(e) { self._waveEnd(0.7 * duration, e); }, false);
 }
 Letter.prototype._waveEnd = function(duration, e) {
-    console.log('transition end');
-    e.srcElement.removeEventListener(events.transitionend, arguments.callee, false);
+    e.target.removeEventListener(events.transitionend, arguments.callee, false);
     // If our transition isn't 'none' then we can keep going. If it has become 'none' then
     // there's a drag in progress.
     if (this._element.style[properties.transition] != 'none') {
@@ -428,8 +425,8 @@ Group.prototype._validate = function() {
 
 function doWave(items) {
     function cleanup(e) {
-        e.srcElement.style[properties.animation] = null;
-        e.srcElement.removeEventListener(events.animationend, arguments.callee, false);
+        e.target.style[properties.animation] = null;
+        e.target.removeEventListener(events.animationend, arguments.callee, false);
     }
     for (var i = 0; i < items.length; i++) {
         var item = items[i];
@@ -616,7 +613,7 @@ Launcher.prototype._back = function(from, homes, tx) {
     this._element.style[properties.transform] = null;
     this._element.style.pointerEvents = null;
     from.addEventListener(events.transitionend, function(e) {
-        document.body.removeChild(e.srcElement);
+        document.body.removeChild(e.target);
     }, false);
 }
 
